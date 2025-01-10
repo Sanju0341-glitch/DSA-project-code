@@ -1,0 +1,188 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_entry 100
+#define MAX_n_l 1001
+#define MAX_ca_l 100
+#define MAX_a_l 100
+#define MAX_p_n 5
+#define MAX_p_l 15
+
+char names[MAX_entry][MAX_n_l];
+char categories[MAX_entry][MAX_ca_l];
+char addresses[MAX_entry][MAX_a_l];
+char phoneNumbers[MAX_entry][MAX_p_n][MAX_p_l];
+int phoneCounts[MAX_entry];
+int entryCount = 0;
+
+void removeNewline(char *str) 
+{
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') 
+    {
+        str[len - 1] = '\0';
+    }
+}
+
+void insert() 
+{
+    if (entryCount >= MAX_entry) 
+    {
+        printf("Directory is full. Cannot add more entries.\n");
+        return;
+    }
+
+    printf("Enter Business Name: ");
+    fgets(names[entryCount], MAX_n_l, stdin);
+    removeNewline(names[entryCount]);
+
+    printf("Enter Category: ");
+    fgets(categories[entryCount], MAX_ca_l, stdin);
+    removeNewline(categories[entryCount]);
+
+    printf("Enter Address: ");
+    fgets(addresses[entryCount], MAX_a_l, stdin);
+    removeNewline(addresses[entryCount]);
+
+    printf("Enter number of phone numbers (max %d): ", MAX_p_n);
+    scanf("%d", &phoneCounts[entryCount]);
+    getchar(); 
+
+    if (phoneCounts[entryCount] > MAX_p_n) 
+    {
+        printf("Maximum phone numbers allowed is %d. Setting to %d.\n", MAX_p_n, MAX_p_n);
+        phoneCounts[entryCount] = MAX_p_n;
+    }
+
+    for (int i = 0; i < phoneCounts[entryCount]; i++) {
+        printf("Enter Phone Number %d: ", i + 1);
+        fgets(phoneNumbers[entryCount][i], MAX_p_l, stdin);
+        removeNewline(phoneNumbers[entryCount][i]);
+    }
+
+    entryCount++;
+    printf("Entry added successfully!\n\n");
+}
+
+void searchbyCategory() 
+{
+    char category[MAX_ca_l];
+    printf("Enter Category to search: ");
+    fgets(category, MAX_ca_l, stdin);
+    removeNewline(category);
+
+    printf("\nBusinesses in category '%s':\n", category);
+    int found = 0;
+
+    for (int i = 0; i < entryCount; i++)
+    {
+        if (strcasecmp(categories[i], category) == 0) 
+        {
+            printf("  Name: %s\n  Address: %s\n  Phone Numbers:\n", names[i], addresses[i]);
+            for (int j = 0; j < phoneCounts[i]; j++) {
+                printf("    %s\n", phoneNumbers[i][j]);
+            }
+            printf("\n");
+            found = 1;
+        }
+    }
+
+    if (!found) {
+        printf("No businesses found in category '%s'.\n\n", category);
+    }
+}
+
+void searchbyname() 
+{
+    char name[MAX_n_l];
+    printf("Enter Business Name to search: ");
+    fgets(name, MAX_n_l, stdin);
+    removeNewline(name);
+
+    for (int i = 0; i < entryCount; i++) 
+    {
+        if (strcasecmp(names[i], name) == 0) 
+        {
+            printf("\nBusiness Details:\n  Name: %s\n  Category: %s\n  Address: %s\n  Phone Numbers:\n", names[i], categories[i], addresses[i]);
+            for (int j = 0; j < phoneCounts[i]; j++) 
+            {
+                printf("    %s\n", phoneNumbers[i][j]);
+            }
+            printf("\n");
+            return;
+        }
+    }
+    printf("No business found with name '%s'.\n\n", name);
+}
+
+void searchbyphon() 
+{
+    char phone[MAX_p_l];
+    printf("Enter Phone Number to search: ");
+    fgets(phone, MAX_p_l, stdin);
+    removeNewline(phone);
+
+    printf("\nBusinesses with phone number '%s':\n", phone);
+    int found = 0;
+
+    for (int i = 0; i < entryCount; i++) 
+    {
+        for (int j = 0; j < phoneCounts[i]; j++) 
+        {
+            if (strcmp(phoneNumbers[i][j], phone) == 0) 
+            {
+                printf("  Name: %s\n  Category: %s\n  Address: %s\n\n", names[i], categories[i], addresses[i]);
+                found = 1;
+            }
+        }
+    }
+
+    if (!found) 
+    {
+        printf("No business found with phone number '%s'.\n\n", phone);
+    }
+}
+
+void displayMenu() 
+{
+    printf("=== Business Directory ===\n");
+    printf("1. Add a Business\n");
+    printf("2. Lookup by Category\n");
+    printf("3. Lookup by Business Name\n");
+    printf("4. Lookup by Phone Number\n");
+    printf("5. Exit\n");
+    printf("Enter your choice: ");
+}
+
+int main() 
+{
+    int choice;
+
+    while (1) 
+    {
+        displayMenu();
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) 
+        {
+            case 1:
+                insert();
+                break;
+            case 2:
+                searchbyCategory();
+                break;
+            case 3:
+                searchbyname();
+                break;
+            case 4:
+                searchbyphon();
+                break;
+            case 5:
+                printf("Exiting the program. Goodbye!\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n\n");
+        }
+    }
+} 
